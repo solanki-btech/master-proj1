@@ -12,6 +12,33 @@ const config = {
   measurementId: "G-ETHTL830KL"
 }
 
+export const createUserProfileDocument = async (userAuth, addData) => {
+  if(!userAuth) return;
+
+  const userRef = firestore.doc(`users/${userAuth.uid}`)
+
+  const snapshot = await userRef.get();
+
+  console.log(snapshot)
+  if(!snapshot.exists) {
+    const { email, displayName } = userAuth;
+    const createAt = new Date();
+
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        createAt,
+        ...addData 
+      })
+    } catch (err) {
+      console.log("error creating user", err.message)
+    }
+  }
+
+  return userRef;
+}
+
 firebase.initializeApp(config);
 
 export const auth = firebase.auth();
